@@ -1,26 +1,22 @@
 ---
-# Task file for perun role for Debian
+# Common task file for Perun role
 
 - name: Install prerequisites
   package:
     name: "{{ prerequisites[ansible_distribution] }}"
     state: latest
 
-- name: Generate the hash of user's password (SHA-512)
-  shell: mkpasswd -m sha-512 "{{ password_user | default (lookup('password')) }}"
-  register: password_user_hash
-
 - name: "Create {{ perun_group }} group"
   group:
     name: "{{ perun_group }}"
     system: yes
-    
+
 - name: "Create {{ perun_login }} user"
   user:
     name: "{{ perun_login }}"
     group: "{{ perun_group }}"
     comment: "{{ perun_name }}"
-    password: "{{ password_user_hash.stdout }}"
+    password: "{{ password_user | password_hash('sha512') }}"
     shell: /bin/bash
     update_password: always
     system: yes
