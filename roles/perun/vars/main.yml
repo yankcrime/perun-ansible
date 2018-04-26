@@ -22,3 +22,24 @@ prerequisites:
    - whois
    - apache2
    - ntpdate
+ CentOS:
+   - git
+   - perl-Switch
+   - perl-LWP-Authen-Negotiate.noarch
+   - perl-JSON-Any
+   - perl-Text-ASCIITable
+   - perl-TermReadKey
+   - perl-libwww-perl
+   - perl-Crypt-SSLeay
+   - perl-Text-Unidecode
+   - perl-Date-Calc
+   - perl-LDAP
+   - openldap-clients
+   - expect
+   - ntp
+   - rsync
+   - python-passlib
+   - sudo
+   - whois
+   - httpd
+   - ntpdate
