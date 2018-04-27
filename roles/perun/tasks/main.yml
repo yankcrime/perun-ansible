@@ -5,8 +5,7 @@
 # ansible_distribution_major_version - OS version, e.g. "8"
 # ansible_distribution_release - e.g. "jessie"
 
-
-# specific tasks
+# Distribution-specific tasks
 - include_tasks: "{{ ansible_distribution }}_{{ ansible_distribution_major_version }}.yml"
 # common tasks
-- include_tasks: "{{ ansible_distribution }}.yml"
+- include_tasks: "common.yml"
