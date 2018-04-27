@@ -1,0 +1,19 @@
+---
+- name: Install EPEL and refresh yum cache
+  yum:
+    name:
+      - epel-release
+    state: latest
+    update_cache: true
+
+- name: Install Java8
+  yum:
+    name:
+      - java-1.8.0-openjdk-devel
+    state: latest
+
+- name: Install Apache Maven
+  yum:
+    name: maven
+    state: latest
+

@@ -1,0 +1,86 @@
+# Tasks file for apache-perun
+
+- name: Install Apache
+  package:
+    name: "{{ apache_package[ansible_os_family] }}"
+    state: present
+
+- name: Enable Apache modules
+  apache2_module:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ apache_modules }}"
+  notify:
+    - "restart webserver"
+
+- name: Create Apache configuration files in /etc/httpd/conf.d/
+  template:
+    src: "{{ item }}.j2"
+    dest: "/etc/httpd/conf.d/{{ item }}"
+    force: no
+    mode: 0644
+  with_items:
+    - perun.conf
+    - perun-ssl.conf
+  notify:
+    - "restart webserver"
+
+- name: Create directory for maintenance files
+  file:
+    path: /var/www/maintenance
+    state: directory
+    owner: "{{ perun_login }}"
+    group: "{{ perun_group }}"
+    mode: 0755
+
+- name: Copy maintenance files
+  template:
+    src: "./maintenance/{{ item }}.j2"
+    dest: "/var/www/maintenance/{{ item }}"
+    owner: "{{ perun_login }}"
+    group: "{{ perun_group }}"
+    mode: 0644
+  with_items: "{{ maintenance_files }}"
+
+- name: Install EGI IGTF yum repo
+  yum_repository:
+    name: "EGI-trustanchors"
+    description: "EGI IGTF"
+    baseurl: "http://repository.egi.eu/sw/production/cas/1/current/"
+    gpgcheck: yes
+    gpgkey: "http://repository.egi.eu/sw/production/cas/1/GPG-KEY-EUGridPMA-RPM-3"
+
+- name: Install latest IGTF certificates
+  yum:
+    name: ca-policy-egi-core
+    state: latest
+  when:
+    - apache_ca_certificate_path == "/etc/grid-security/certificates/"
+  notify:
+    - "restart webserver"
+
+# Rehash certificates for user identification
+- name: Install c_rehash
+  yum:
+    name: openssl-perl
+    state: latest
+  when:
+    - apache_ca_certificate_path != "/etc/grid-security/certificates/"
+
+- name: Use c_rehash to your certificates
+  command: c_rehash .
+  args:
+    chdir: "{{ apache_ca_certificate_path }}"
+  when:
+    - apache_ca_certificate_path != "/etc/grid-security/certificates/"
+  notify:
+    - "restart webserver"
+
+- name: Enable JSON data compression in Apache
+  lineinfile:
+    dest: /etc/httpd/conf.modules.d/00-deflate.conf
+    line: "\t\t# Perun\n\t\tAddOutputFilterByType DEFLATE text/javascript"
+    create: yes
+  notify:
+    - "restart webserver"
+

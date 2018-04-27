@@ -1,0 +1,68 @@
+---
+- name: Ensuring config directories exist
+  become: true
+  file:
+    path: "/etc/ssl/{{ item }}"
+    state: "directory"
+    recurse: yes
+  with_items:
+    - "certs/private"
+
+- name: Creating SSL configuration file
+  become: true
+  template:
+    src: "{{ item }}.j2"
+    dest: "/etc/ssl/{{ item }}"
+  with_items:
+    - "openssl.cnf"
+
+- name: Creating Key
+  become: true
+  command: creates="{{ item }}" openssl genrsa -out {{ item }}
+  with_items:
+    - "/etc/ssl/certs/private/{{ ansible_hostname }}.key"
+
+- name: Creating Server Certificate
+  become: true
+  command: creates="{{ item }}" openssl req -new -nodes -sha256 -x509 \
+    -subj "/C=GB/ST=England/L=London/O=Perun/CN={{ ansible_fqdn }}" \
+    -config /etc/ssl/openssl.cnf \
+    -days 3650 \
+    -key /etc/ssl/certs/private/{{ ansible_hostname }}.key \
+    -out {{ item }}
+  with_items:
+    - "/etc/ssl/certs/private/{{ ansible_hostname }}.crt"
+
+- name: Creating CA Certificate File
+  become: true
+  copy:
+    src: "/etc/ssl/certs/private/{{ ansible_hostname }}.crt"
+    dest: "/etc/ssl/certs/{{ ansible_hostname }}-ca.crt"
+
+- name: Creating Server PEM File
+  become: true
+  assemble:
+    src: "/etc/ssl/certs/private"
+    dest: "/etc/ssl/certs/{{ ansible_hostname }}.pem"
+
+- name: Copy Snake Oil certificate to /etc/perun/ssl folder
+  command: cp /etc/ssl/certs/{{ ansible_hostname }}.pem /etc/ssl/certs/private/{{ ansible_hostname }}.key /etc/perun/ssl/
+  args:
+    creates:
+      - /etc/perun/ssl/{{ ansible_hostname }}.pem
+      - /etc/perun/ssl/{{ ansible_hostname }}.key
+
+- name: Check rights on certificate
+  file:
+    path: "{{ apache_certificate_file }}"
+    follow: yes
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Check rights on certificate key
+  file:
+    path: "{{ apache_certificate_key_file }}"
+    follow: yes
+    owner: root
+    mode: 0640

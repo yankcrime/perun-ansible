@@ -64,8 +64,13 @@ ShibCompatValidUser on
 
   # Following handles also rewrite log
   LogLevel warn rewrite:warn
-  ErrorLog ${APACHE_LOG_DIR}/error.log
-  CustomLog ${APACHE_LOG_DIR}/access.log combined
+  {% if ansible_distribution == 'Debian' %}
+     ErrorLog ${APACHE_LOG_DIR}/error.log
+     CustomLog ${APACHE_LOG_DIR}/access.log combined
+  {% else %}
+     ErrorLog /var/log/httpd/perun-ssl-error.log
+     CustomLog /var/log/httpd/perun-ssl-access.log combined
+  {% endif %}
 
  ####################################
  ##      MAINTENANCE             ####

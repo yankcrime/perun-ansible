@@ -14,11 +14,16 @@
         ErrorDocument 500 /maintenance/500.html
         ErrorDocument 503 /maintenance/503.html
 
-        ErrorLog ${APACHE_LOG_DIR}/error.log
-
         # Possible values include: debug, info, notice, warn, error, crit,
         # alert, emerg.
-        LogLevel warn
 
-        CustomLog ${APACHE_LOG_DIR}/access.log combined
+        LogLevel warn
+        {% if ansible_distribution == 'Debian' %}
+           ErrorLog ${APACHE_LOG_DIR}/error.log
+           CustomLog ${APACHE_LOG_DIR}/access.log combined
+        {% else %}
+           ErrorLog /var/log/httpd/perun_error.log
+           CustomLog /var/log/httpd/perun_access.log combined
+        {% endif %}
+
 </VirtualHost>

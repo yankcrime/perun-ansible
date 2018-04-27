@@ -4,20 +4,26 @@ apache_package:
   Debian:
     - apache2
     - cronolog
+  RedHat:
+    - httpd
+    - cronolog
+
 apache_modules:
-  Debian:
-    - headers
-    - ssl
-    - proxy
-    - proxy_ajp
-    - proxy_http
-    - rewrite
-    - shib2
+  - headers
+  - ssl
+  - proxy
+  - proxy_ajp
+  - proxy_http
+  - rewrite
+  - shib2
+
 apache_service:
   Debian: apache2
+  RedHat: httpd
 
 ssl_cert_package:
   Debian: ssl-cert
+  RedHat: crypto-utils
 
 maintenance_files:
   - 401.html
