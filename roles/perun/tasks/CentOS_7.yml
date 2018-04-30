@@ -17,3 +17,30 @@
     name: maven
     state: latest
 
+- name: Create Tomcat group
+  group:
+    name: tomcat
+    system: yes
+
+- name: Create Tomcat user
+  user:
+    name: tomcat
+    comment: "Apache Tomcat service account"
+    system: yes
+    group: tomcat
+
+- name: Download and extract Tomcat 8
+  unarchive:
+    src: http://www.mirrorservice.org/sites/ftp.apache.org/tomcat/tomcat-8/v{{ tomcat_version }}/bin/apache-tomcat-{{ tomcat_version }}.tar.gz
+    dest: /opt/
+    remote_src: yes
+    creates: /opt/apache-tomcat-{{ tomcat_version }}/config
+    owner: tomcat
+    group: tomcat
+
+- name: Symlink Tomcat 8 directory
+  file:
+    path: /opt/tomcat
+    src: /opt/apache-tomcat-{{ tomcat_version }}
+    state: link
+
