@@ -2,8 +2,8 @@
 - name: Require Debian 8
   assert:
     that:
-      - ansible_distribution == "Debian" 
-      - ansible_distribution_major_version == "8" 
+      - ansible_distribution == "Debian"
+      - ansible_distribution_major_version == "8"
     msg: "Debian 8 specific tasks"
 
 - name: Add jessie-backports repository

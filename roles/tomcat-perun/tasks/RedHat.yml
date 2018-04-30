@@ -1,5 +1,13 @@
 ---
-# Task file for tomcat installation on Debian distribution
+# Task file for tomcat installation
+
+- name: Create systemd unit file for Tomcat
+  template:
+    src: tomcat.service.j2
+    dest: /etc/systemd/system/tomcat8.service
+    owner: root
+    group: root
+    mode: 0644
 
 - name: Add user tomcat8 to groups perun,tomcat8
   user:
@@ -16,7 +24,7 @@
 - name: Copy tomcat-users.xml and server.xml to tomcat
   template:
     src: "{{ item }}.j2"
-    dest: "/etc/tomcat8/{{ item }}"
+    dest: "/opt/tomcat/{{ item }}"
     mode: 0640
     group: tomcat8
   with_items:
@@ -46,12 +54,6 @@
     path: "/home/{{ perun_login }}/input.txt"
     state: absent
 
-- name: Copy tomcat8 configuration to remote
-  template:
-    src: tomcat8.j2
-    dest: "/etc/default/tomcat8"
-    mode: 0644
-
 - name: create dirs to stop tomcat complaining
   file:
     path: "{{item}}"
@@ -64,8 +66,8 @@
      - /usr/share/tomcat8/server/classes
      - /usr/share/tomcat8/shared/classes
 
-
-- name: Restart Tomcat
-  service:
-    state: restarted
+- name: (Re)start Tomcat
+  systemd:
+    state: started
     name: tomcat8
+    daemon_reload: yes

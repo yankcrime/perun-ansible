@@ -19,12 +19,12 @@
 
 - name: Create Tomcat group
   group:
-    name: tomcat
+    name: tomcat8
     system: yes
 
 - name: Create Tomcat user
   user:
-    name: tomcat
+    name: tomcat8
     comment: "Apache Tomcat service account"
     system: yes
     group: tomcat
