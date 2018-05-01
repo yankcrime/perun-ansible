@@ -3,6 +3,7 @@
 # Necessary packages
 prerequisites:
  Debian:
+   - acl
    - git
    - libswitch-perl
    - liblwp-authen-negotiate-perl
