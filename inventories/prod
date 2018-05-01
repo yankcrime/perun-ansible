@@ -1,2 +1,2 @@
 [perun-servers]
-production-perun.awesomesite.cz ansible_user=root
+128.232.224.123 ansible_user=debian
